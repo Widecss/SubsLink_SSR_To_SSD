@@ -21,19 +21,16 @@ except:
 
 
 app = Flask(__name__)
-argLink = ""
+# 机场url头，有需要可自行修改
+handUrl = "https://www.cordcloud.cc/link/"
 
 
 def readArgs():
     try:
         args = getopt.getopt(sys.argv[1:], "h")
-        # opts = [('-a', "abc"), ('-b', 'cde')]
-        # args = ['123']
     except:
         print(False)
-        # print('解析参数失败！程序已退出。')
         sys.exit(-1)
-
     return args[1]
 
 
@@ -54,6 +51,8 @@ def buildServerList(ssrLinkList):
         server = text.split(":")[0]
         remarks = text.split("&remarks=")[1].split("&")[0]
         _remarks = decodeUrlBase(remarks)
+
+        # 从备注中获取倍率
         ratio = getRatio(_remarks)
         
         element["server"] = server
@@ -102,6 +101,8 @@ def fixBase64(source):
     return source
 
 
+# 从备注中获取倍率
+# 适配其他机场时请修改或关闭此方法
 def getRatio(remark):
     _remark = remark.split("(倍率:")[1]
     _ratio = _remark.split(")")[0]
@@ -125,9 +126,9 @@ def writeFile(path, text):
         fle.write(text.encode("utf-8"))
 
 
-def getRepoText():
+def getRepoText(subsUrl):
     # 读取base64字符串
-    source = getSubsLink(argLink)
+    source = getSubsLink(subsUrl)
     if source == None:
         print("获取订阅失败，请检查网络。")
         return "Get Subscription Error"
@@ -166,22 +167,16 @@ def getRepoText():
     return outText
 
 
-@app.route('/subscription', methods=['GET'])
-def get():
-    return getRepoText()
+@app.route('/subs/<key>', methods=['GET'])
+def get(key=None):
+    if key == None:
+        print("未输入订阅 Key。")
+        return "未输入订阅 Key"
+
+    subsUrl = handUrl + key
+    return getRepoText(subsUrl)
 
 
 if __name__ == "__main__":
-    argLink = readFile("link.cfg").strip()
-
-    if argLink == "":
-        print("请在 link.cfg 中输入订阅链接[http(s)://?]，脚本已退出。")
-        sys.exit(-1)
-    
-    print(
-        "\n" + 
-        "原订阅链接为： " + argLink + "\n" + 
-        "开启订阅链接为： http://localhost:9876/subscription\n"
-    )
-
+    print("\n新订阅链接为： http://localhost:9876/subs/<key>\n")
     app.run(host="localhost", port=9876)
