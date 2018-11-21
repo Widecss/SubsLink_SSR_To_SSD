@@ -152,15 +152,10 @@ def getRepoText(subsUrl):
     ssrText = decodeHaveUnderline(ssrLink)
     argList = ssrText.split(":")
 
-    # 过滤协议
-    if ("compatible" not in argList[2]) and (argList[2] != "origin"):
-        errorJson = buildSSDJson()
-        errorJson["airport"] = "你的订阅不能给ssd用"
-        errorJsonStr = json.dumps(errorJson)
-        result = base64.b64encode(errorJsonStr.encode("utf-8"))
-        return "ssd://" + result.decode("utf-8")
-    # 过滤混淆
-    if ("compatible" not in argList[4]) and (argList[4] != "plain"):
+    # 过滤协议、混淆
+    if ("compatible" not in argList[2]) and (argList[2] != "origin") and \
+        ("compatible" not in argList[4]) and (argList[4] != "plain"):
+
         errorJson = buildSSDJson()
         errorJson["airport"] = "你的订阅不能给ssd用"
         errorJsonStr = json.dumps(errorJson)
