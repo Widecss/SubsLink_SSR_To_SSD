@@ -11,12 +11,12 @@ import sys
 try:
     import requests
 except:
-    print("载入 Requests 模块失败，程序已退出。")
+    print("载入 Requests 模块失败，脚本已退出。")
     sys.exit(-1)
 try:
     from flask import Flask
 except:
-    print("载入 Flask 模块失败，程序已退出。")
+    print("载入 Flask 模块失败，脚本已退出。")
     sys.exit(-1)
 
 
@@ -67,10 +67,15 @@ def buildServerList(ssrLinkList):
 def buildSSDJson():
     return {
         "airport": "CordCloud", 
-        "port": 0, 
-        "encryption": "", 
-        "password": "", 
-        "servers": {}
+        "port": 1025, 
+        "encryption": "aes-128-gcm", 
+        "password": "G6l87F", 
+        "servers": [{
+            "id": 3,
+            "server": "www.google.com",
+            "remarks": "\u7f8e\u56fd A",
+            "ratio": 1
+        }]
     }
 
 
@@ -142,11 +147,27 @@ def getRepoText(subsUrl):
     # 生成ssd链接json
     ssdJson = buildSSDJson()
 
-    # 端口、加密、密码
+    # 解码第一个ssr链接
     ssrLink = ssrLinkList[0]
     ssrText = decodeHaveUnderline(ssrLink)
     argList = ssrText.split(":")
 
+    # 过滤协议
+    if ("compatible" not in argList[2]) and (argList[2] != "origin"):
+        errorJson = buildSSDJson()
+        errorJson["airport"] = "你的订阅不能给ssd用"
+        errorJsonStr = json.dumps(errorJson)
+        result = base64.b64encode(errorJsonStr.encode("utf-8"))
+        return "ssd://" + result.decode("utf-8")
+    # 过滤混淆
+    if ("compatible" not in argList[4]) and (argList[4] != "plain"):
+        errorJson = buildSSDJson()
+        errorJson["airport"] = "你的订阅不能给ssd用"
+        errorJsonStr = json.dumps(errorJson)
+        result = base64.b64encode(errorJsonStr.encode("utf-8"))
+        return "ssd://" + result.decode("utf-8")
+
+    # 解析端口、加密、密码
     port = argList[1]
     encryption = argList[3]
     password = argList[5].split("/?")[0]
