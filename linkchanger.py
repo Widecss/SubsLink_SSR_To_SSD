@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author:Widecss
-# 为减少代码量该脚本使用了 Requests 模块
+# 该脚本依赖于 Flask、Requests 模块
 # 请手动安装
 
 import base64
@@ -11,8 +11,17 @@ import sys
 try:
     import requests
 except:
-    print("缺少 Requests 模块，程序已退出。")
+    print("载入 Requests 模块失败，程序已退出。")
     sys.exit(-1)
+try:
+    from flask import Flask
+except:
+    print("载入 Flask 模块失败，程序已退出。")
+    sys.exit(-1)
+
+
+app = Flask(__name__)
+argLink = ""
 
 
 def readArgs():
@@ -100,7 +109,10 @@ def getRatio(remark):
 
 
 def getSubsLink(url):
-    return requests.get(url).text
+    try:
+        return requests.get(url).text
+    except:
+        return None
 
 
 def readFile(path):
@@ -113,14 +125,12 @@ def writeFile(path, text):
         fle.write(text.encode("utf-8"))
 
 
-if __name__ == "__main__":
-    # 读取参数
-    argLink = readArgs()[0]
-    if argLink.strip == "":
-        print("请输入订阅链接[http(s)://*]。脚本已退出.")
-        sys.exit(-1)
+def getRepoText():
     # 读取base64字符串
     source = getSubsLink(argLink)
+    if source == None:
+        print("获取订阅失败，请检查网络。")
+        return "Get Subscription Error"
     # 解码
     _source = source.replace("\n", "")
     ssrLinks = decodeBase64(_source)
@@ -152,6 +162,26 @@ if __name__ == "__main__":
     ssdJsonStr = json.dumps(ssdJson)
     ssdLink = base64.b64encode(ssdJsonStr.encode("utf-8"))
     outText = "ssd://" + ssdLink.decode("utf-8")
-    writeFile("Output.txt", outText)
 
-    print("获取成功！已输出文件Output.txt")
+    return outText
+
+
+@app.route('/subscription', methods=['GET'])
+def get():
+    return getRepoText()
+
+
+if __name__ == "__main__":
+    argLink = readFile("link.cfg").strip()
+
+    if argLink == "":
+        print("请在 link.cfg 中输入订阅链接[http(s)://?]，脚本已退出。")
+        sys.exit(-1)
+    
+    print(
+        "\n" + 
+        "原订阅链接为： " + argLink + "\n" + 
+        "开启订阅链接为： http://localhost:9876/subscription\n"
+    )
+
+    app.run(host="localhost", port=9876)
