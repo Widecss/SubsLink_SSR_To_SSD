@@ -111,7 +111,7 @@ def fixBase64(source):
 def getRatio(remark):
     _remark = remark.split("(倍率:")[1]
     _ratio = _remark.split(")")[0]
-    return _ratio
+    return float(_ratio)
 
 
 def getSubsLink(url):
@@ -136,7 +136,7 @@ def getRepoText(subsUrl):
     source = getSubsLink(subsUrl)
     if source == None:
         print("获取订阅失败，请检查网络。")
-        return "Get Subscription Error"
+        return "Get Subscribe Error"
     # 解码
     _source = source.replace("\n", "")
     ssrLinks = decodeBase64(_source)
