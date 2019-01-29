@@ -130,7 +130,7 @@ def getRepoText(subsUrl):
     source = getSubsLink(subsUrl)
     if source == None:
         print("获取订阅失败，请检查网络。")
-        return "Get Subscribe Error"
+        return "Get Subscription Error"
     # 解码
     _source = source.replace("\n", "")
     ssrLinks = decodeBase64(_source)
