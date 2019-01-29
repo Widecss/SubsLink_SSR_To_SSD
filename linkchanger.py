@@ -97,13 +97,7 @@ def decodeUrlBase(source):
 
 
 def fixBase64(source):
-    length = len(source)
-
-    while length % 4 != 0:
-        source += "="
-        length = len(source)
-
-    return source
+    return source + "=" * (-len(source) % 4)
 
 
 # 从备注中获取倍率
