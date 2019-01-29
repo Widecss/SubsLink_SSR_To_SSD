@@ -188,5 +188,5 @@ def get(key=None):
 
 
 if __name__ == "__main__":
-    print("\n新订阅链接为： http://0.0.0.0:9876/subs/<key>\n")
+    print("\n新订阅链接为： http://localhost:9876/subs/<key>\n")
     app.run(host="0.0.0.0", port=9876)
